@@ -415,8 +415,74 @@ Cost today: 0.667 × $100 - $57.14 = <strong>$9.52</strong>
     </ul>
     <p>Arbitrageurs enforce that option price = replication cost = Q-price.</p>
 
-    <!-- ============ SECTION 8: SUMMARY ============ -->
-    <h2>8. The Two Measures: Summary</h2>
+    <!-- ============ SECTION 8: CALL OPTION UNDER P ============ -->
+    <h2>8. The Call Option Under Real-World Probabilities</h2>
+
+    <p>We priced the call at <strong>$9.52</strong> using Q. But can we verify this using P (real-world probabilities)?</p>
+
+    <h3>The Returns</h3>
+    <p>If the call is worth $9.52 today, what are the returns in each state?</p>
+
+    <div class="example-box">
+Up state:   Call worth $20
+            Return = ($20 - $9.52) / $9.52 = <strong>+110%</strong>
+
+Down state: Call worth $0
+            Return = ($0 - $9.52) / $9.52 = <strong>-100%</strong>
+    </div>
+
+    <h3>Expected Return Under P</h3>
+    <div class="example-box">
+E[Return] = 0.60 × (+110%) + 0.40 × (-100%)
+          = 66% - 40%
+          = <strong>26%</strong>
+    </div>
+
+    <p>The call has an expected return of <span class="highlight">26%</span> — much higher than the stock's 8%!</p>
+
+    <h3>Why So High?</h3>
+    <p>The call is <strong>leveraged exposure</strong> to the stock. The replicating portfolio shows why:</p>
+
+    <div class="example-box">
+Replicating portfolio:
+  Long 0.667 shares    = $66.67 of stock exposure
+  Borrowed             = $57.14
+  Net investment       = $9.52 (the call price)
+
+Leverage = $66.67 / $9.52 = <strong>7× levered</strong> on the stock
+    </div>
+
+    <p>You're controlling $66.67 of stock with only $9.52 of capital. That leverage amplifies both returns and risk.</p>
+
+    <h3>Verifying P-Measure Pricing</h3>
+    <p>Now we can price the call under P using the correct risk-adjusted discount rate:</p>
+
+    <div class="two-col">
+        <div class="card">
+            <h3>Under P</h3>
+            <p><strong>Probabilities:</strong> 60% up, 40% down</p>
+            <p><strong>Expected payoff:</strong> $12</p>
+            <p><strong>Required return:</strong> 26% (leveraged risk)</p>
+            <div class="formula">$12 / 1.26 = <strong>$9.52</strong></div>
+        </div>
+
+        <div class="card neutral">
+            <h3>Under Q</h3>
+            <p><strong>Probabilities:</strong> 50% up, 50% down</p>
+            <p><strong>Expected payoff:</strong> $10</p>
+            <p><strong>Discount rate:</strong> 5% (risk-free)</p>
+            <div class="formula">$10 / 1.05 = <strong>$9.52</strong></div>
+        </div>
+    </div>
+
+    <div class="card info">
+        <h3>The Insight</h3>
+        <p><strong>Same price, both measures.</strong> Under P, the call demands a 26% return because it's leveraged and risky. Under Q, we adjust the probabilities instead and discount at the risk-free rate.</p>
+        <p style="margin-top: 0.75rem;">Q is easier because we don't need to figure out the "right" risk premium for each derivative — it varies with leverage, moneyness, and time to expiry. Q handles all of that automatically.</p>
+    </div>
+
+    <!-- ============ SECTION 9: SUMMARY ============ -->
+    <h2>9. The Two Measures: Summary</h2>
 
     <table>
         <tr>
@@ -446,8 +512,8 @@ Cost today: 0.667 × $100 - $57.14 = <strong>$9.52</strong>
         </tr>
     </table>
 
-    <!-- ============ SECTION 9: PRACTICAL IMPLICATIONS ============ -->
-    <h2>9. Practical Implications</h2>
+    <!-- ============ SECTION 10: PRACTICAL IMPLICATIONS ============ -->
+    <h2>10. Practical Implications</h2>
 
     <h3>For Trading</h3>
     <ul>
@@ -463,7 +529,7 @@ Cost today: 0.667 × $100 - $57.14 = <strong>$9.52</strong>
         <li><strong>The premium is the price of fear</strong> — someone risk-neutral would harvest it</li>
     </ul>
 
-    <!-- ============ SECTION 10: THE TAKEAWAY ============ -->
+    <!-- ============ SECTION 11: THE TAKEAWAY ============ -->
     <div class="takeaway">
         <p><strong>The Takeaway</strong></p>
         <p style="margin-top: 0.75rem;">Risk-neutral pricing doesn't assume investors are risk-neutral.<br>
