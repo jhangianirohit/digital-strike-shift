@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding Risk-Neutral Pricing</title>
+    <style>
+        :root {
+            --bg: #1a1a2e;
+            --card: #16213e;
+            --accent: #0f3460;
+            --highlight: #e94560;
+            --text: #eee;
+            --muted: #888;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--highlight);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin: 2.5rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            margin: 1.5rem 0 0.75rem;
+            color: var(--highlight);
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid var(--highlight);
+        }
+
+        .card.neutral {
+            border-left-color: #4CAF50;
+        }
+
+        .card.info {
+            border-left-color: #2196F3;
+        }
+
+        .example-box {
+            background: var(--accent);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            font-family: 'Consolas', monospace;
+            white-space: pre-wrap;
+            line-height: 1.8;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--accent);
+        }
+
+        th {
+            background: var(--accent);
+            font-weight: 600;
+        }
+
+        .formula {
+            background: var(--accent);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            font-size: 1.1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        @media (max-width: 600px) {
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .highlight {
+            color: var(--highlight);
+            font-weight: 600;
+        }
+
+        .tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 2rem 0;
+            font-family: 'Consolas', monospace;
+        }
+
+        .tree-node {
+            background: var(--accent);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            margin: 0.5rem;
+        }
+
+        .tree-branches {
+            display: flex;
+            gap: 4rem;
+            position: relative;
+        }
+
+        .tree-branches::before {
+            content: '';
+            position: absolute;
+            top: -1rem;
+            left: 50%;
+            width: 1px;
+            height: 1rem;
+            background: var(--muted);
+        }
+
+        .branch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .branch-line {
+            width: 1px;
+            height: 1rem;
+            background: var(--muted);
+        }
+
+        .prob {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .up { color: #4CAF50; }
+        .down { color: #f44336; }
+
+        ul, ol {
+            margin: 1rem 0 1rem 1.5rem;
+        }
+
+        li {
+            margin: 0.5rem 0;
+        }
+
+        .reading-list {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .reading-list li {
+            padding: 1rem;
+            background: var(--card);
+            border-radius: 8px;
+            margin: 0.75rem 0;
+        }
+
+        .reading-list .title {
+            font-weight: 600;
+            color: var(--highlight);
+            text-decoration: none;
+            display: block;
+        }
+
+        .reading-list .title:hover {
+            text-decoration: underline;
+        }
+
+        .reading-list .author {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .reading-list .desc {
+            margin-top: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .takeaway {
+            background: linear-gradient(135deg, var(--accent), var(--card));
+            border: 2px solid var(--highlight);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid var(--accent);
+            margin: 3rem 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Risk-Neutral Pricing</h1>
+    <p class="subtitle">A single example that explains why derivatives pricing works</p>
+
+    <!-- ============ SECTION 1: THE SETUP ============ -->
+    <h2>1. The Setup</h2>
+
+    <p>Consider a simple stock with two possible outcomes tomorrow:</p>
+
+    <div class="tree">
+        <div class="tree-node">Today: <strong>$100</strong></div>
+        <div class="tree-branches">
+            <div class="branch">
+                <div class="branch-line"></div>
+                <div class="prob">60% probability</div>
+                <div class="tree-node up">Up: <strong>$120</strong></div>
+            </div>
+            <div class="branch">
+                <div class="branch-line"></div>
+                <div class="prob">40% probability</div>
+                <div class="tree-node down">Down: <strong>$90</strong></div>
+            </div>
+        </div>
+    </div>
+
+    <p>The risk-free rate is <strong>5%</strong>. You can lend or borrow at this rate.</p>
+
+    <!-- ============ SECTION 2: THE QUESTION ============ -->
+    <h2>2. The Question</h2>
+
+    <div class="card">
+        <p><strong>Why is the stock priced at $100 today?</strong></p>
+        <p style="margin-top: 0.75rem;">If we compute the expected value:</p>
+        <div class="formula">
+            E[S] = 0.60 × $120 + 0.40 × $90 = <strong>$108</strong>
+        </div>
+        <p>Discounted at the risk-free rate: $108 / 1.05 = <strong>$102.86</strong></p>
+        <p style="margin-top: 0.75rem;">So why isn't the stock trading at $102.86?</p>
+    </div>
+
+    <!-- ============ SECTION 3: THE ANSWER ============ -->
+    <h2>3. The Answer: Risk Aversion</h2>
+
+    <p>Investors are <span class="highlight">risk-averse</span>. They won't pay the full expected value for an uncertain payoff.</p>
+
+    <p>They demand a <strong>risk premium</strong> — extra expected return — to compensate for bearing uncertainty.</p>
+
+    <div class="example-box">
+Expected return = $108 / $100 - 1 = <strong>8%</strong>
+Risk-free rate                    = <strong>5%</strong>
+─────────────────────────────────────────
+Equity risk premium               = <strong>3%</strong>
+    </div>
+
+    <p>The stock is "cheap" relative to expected value <em>because</em> investors require that 3% premium to hold it.</p>
+
+    <!-- ============ SECTION 4: TWO MEASURES ============ -->
+    <h2>4. Two Ways to See the Same Price</h2>
+
+    <p>There are two equivalent ways to arrive at the $100 price:</p>
+
+    <div class="two-col">
+        <div class="card">
+            <h3>Real World (P-measure)</h3>
+            <p><strong>Probabilities:</strong> 60% up, 40% down</p>
+            <p><strong>Expected payoff:</strong> $108</p>
+            <p><strong>Discount rate:</strong> 8% (includes risk premium)</p>
+            <div class="formula">$108 / 1.08 = <strong>$100</strong></div>
+        </div>
+
+        <div class="card neutral">
+            <h3>Risk-Neutral (Q-measure)</h3>
+            <p><strong>Probabilities:</strong> 50% up, 50% down</p>
+            <p><strong>Expected payoff:</strong> $105</p>
+            <p><strong>Discount rate:</strong> 5% (risk-free)</p>
+            <div class="formula">$105 / 1.05 = <strong>$100</strong></div>
+        </div>
+    </div>
+
+    <p><strong>Same price, different framing.</strong> P puts the risk premium in the discount rate; Q puts it in the probabilities.</p>
+
+    <!-- ============ SECTION 5: DERIVING Q ============ -->
+    <h2>5. Finding the Risk-Neutral Probabilities</h2>
+
+    <p>Under Q, the expected return must equal the risk-free rate:</p>
+
+    <div class="example-box">
+E<sup>Q</sup>[S] = S₀ × (1 + r)
+E<sup>Q</sup>[S] = $100 × 1.05 = <strong>$105</strong>
+
+Let q = probability of up-state under Q:
+
+q × $120 + (1-q) × $90 = $105
+30q = 15
+<strong>q = 0.50</strong>
+    </div>
+
+    <table>
+        <tr>
+            <th>State</th>
+            <th>P (Real World)</th>
+            <th>Q (Risk-Neutral)</th>
+        </tr>
+        <tr>
+            <td class="up">Up → $120</td>
+            <td>60%</td>
+            <td>50%</td>
+        </tr>
+        <tr>
+            <td class="down">Down → $90</td>
+            <td>40%</td>
+            <td>50%</td>
+        </tr>
+    </table>
+
+    <p>Q <span class="highlight">downweights</span> the good outcome and <span class="highlight">upweights</span> the bad outcome — that's how it removes the risk premium.</p>
+
+    <!-- ============ SECTION 6: WHY Q MATTERS ============ -->
+    <h2>6. Why Risk-Neutral Pricing Matters</h2>
+
+    <p>Now suppose we want to price a <strong>call option</strong> with strike $100.</p>
+
+    <div class="example-box">
+Payoffs:
+  Up state:   max($120 - $100, 0) = $20
+  Down state: max($90 - $100, 0)  = $0
+    </div>
+
+    <div class="two-col">
+        <div class="card">
+            <h3>Under P</h3>
+            <p>E[payoff] = 0.60 × $20 = $12</p>
+            <p>But what discount rate? 8%? Higher? <span class="highlight">We don't know!</span></p>
+            <p>The option has different risk than the stock.</p>
+        </div>
+
+        <div class="card neutral">
+            <h3>Under Q</h3>
+            <p>E<sup>Q</sup>[payoff] = 0.50 × $20 = $10</p>
+            <p>Discount at risk-free rate:</p>
+            <div class="formula">$10 / 1.05 = <strong>$9.52</strong></div>
+            <p>Done. No risk premium needed.</p>
+        </div>
+    </div>
+
+    <div class="card info">
+        <h3>The Key Insight</h3>
+        <p>Under Q, we always discount at the risk-free rate. We don't need to figure out the "right" risk premium for each derivative — the probability adjustment handles it.</p>
+    </div>
+
+    <!-- ============ SECTION 7: WHY THIS WORKS ============ -->
+    <h2>7. Why Does This Work?</h2>
+
+    <h3>The Replication Argument</h3>
+    <p>The call option can be <strong>replicated</strong> using the stock and borrowing:</p>
+
+    <div class="example-box">
+Portfolio: Buy Δ shares, borrow $B at 5%
+
+Up state:   Δ × $120 - B × 1.05 = $20  (match call payoff)
+Down state: Δ × $90  - B × 1.05 = $0   (match call payoff)
+
+Solving:
+  Δ = ($20 - $0) / ($120 - $90) = 0.667 shares
+  B = (Δ × $90) / 1.05 = $57.14
+
+Cost today: 0.667 × $100 - $57.14 = <strong>$9.52</strong>
+    </div>
+
+    <p>The replicating portfolio costs exactly what Q-pricing gives us. This is <span class="highlight">not a coincidence</span> — it's the foundation of derivatives pricing.</p>
+
+    <h3>No Arbitrage</h3>
+    <p>If the option traded at any other price:</p>
+    <ul>
+        <li>Price > $9.52 → Sell the option, buy the replicating portfolio → risk-free profit</li>
+        <li>Price < $9.52 → Buy the option, sell the replicating portfolio → risk-free profit</li>
+    </ul>
+    <p>Arbitrageurs enforce that option price = replication cost = Q-price.</p>
+
+    <!-- ============ SECTION 8: SUMMARY ============ -->
+    <h2>8. The Two Measures: Summary</h2>
+
+    <table>
+        <tr>
+            <th></th>
+            <th>P (Real World)</th>
+            <th>Q (Risk-Neutral)</th>
+        </tr>
+        <tr>
+            <td><strong>Probabilities</strong></td>
+            <td>Actual/subjective</td>
+            <td>Adjusted (no risk premium)</td>
+        </tr>
+        <tr>
+            <td><strong>Expected return</strong></td>
+            <td>μ (includes risk premium)</td>
+            <td>r (risk-free)</td>
+        </tr>
+        <tr>
+            <td><strong>Used for</strong></td>
+            <td>Forecasting, portfolio allocation</td>
+            <td>Derivatives pricing</td>
+        </tr>
+        <tr>
+            <td><strong>Discount rate</strong></td>
+            <td>Risk-adjusted (varies by asset)</td>
+            <td>Risk-free (always r)</td>
+        </tr>
+    </table>
+
+    <!-- ============ SECTION 9: PRACTICAL IMPLICATIONS ============ -->
+    <h2>9. Practical Implications</h2>
+
+    <h3>For Trading</h3>
+    <ul>
+        <li><strong>Directional views don't make options "cheap"</strong> — the stock price already reflects expected returns</li>
+        <li><strong>Valid option edges</strong>: volatility, skew, correlation — things Q doesn't capture well</li>
+        <li><strong>Risk premia exist</strong> because real investors are risk-averse; you can harvest them if you can bear the variance</li>
+    </ul>
+
+    <h3>For Life</h3>
+    <ul>
+        <li><strong>Insurance = paying the risk premium</strong> — you pay to transfer tail risk to someone else</li>
+        <li><strong>Risky career choices</strong> = long equity risk premium on yourself</li>
+        <li><strong>The premium is the price of fear</strong> — someone risk-neutral would harvest it</li>
+    </ul>
+
+    <!-- ============ SECTION 10: THE TAKEAWAY ============ -->
+    <div class="takeaway">
+        <p><strong>The Takeaway</strong></p>
+        <p style="margin-top: 0.75rem;">Risk-neutral pricing doesn't assume investors are risk-neutral.<br>
+        It says: <em>if you can hedge away the risk, risk preferences don't matter.</em></p>
+        <p style="margin-top: 0.75rem;">Q is a mathematical tool that lets us price derivatives<br>
+        without knowing the market's risk aversion — because hedging eliminates it.</p>
+    </div>
+
+    <hr>
+
+    <!-- ============ READING LIST ============ -->
+    <h2>Reading List</h2>
+
+    <p>To go deeper, in rough order of accessibility:</p>
+
+    <ul class="reading-list">
+        <li>
+            <a class="title" href="https://www.amazon.com/Concepts-Practice-Mathematical-Finance-Mathematics/dp/0521514088" target="_blank">The Concepts and Practice of Mathematical Finance</a>
+            <div class="author">Mark Joshi</div>
+            <div class="desc">Best introduction to derivatives pricing. Explains the intuition before the math. Chapters 1-6 cover everything here in depth.</div>
+        </li>
+        <li>
+            <a class="title" href="https://www.amazon.com/Options-Futures-Other-Derivatives-11th/dp/013693997X" target="_blank">Options, Futures, and Other Derivatives</a>
+            <div class="author">John Hull</div>
+            <div class="desc">The standard textbook. Comprehensive but accessible. Good reference for specific products.</div>
+        </li>
+        <li>
+            <a class="title" href="https://www.amazon.com/Dynamic-Hedging-Managing-Vanilla-Options/dp/0471152803" target="_blank">Dynamic Hedging</a>
+            <div class="author">Nassim Taleb</div>
+            <div class="desc">Practical perspective from a trader. Emphasizes what Black-Scholes gets wrong in practice. Read after you understand the theory.</div>
+        </li>
+        <li>
+            <a class="title" href="https://www.amazon.com/Paul-Wilmott-Introduces-Quantitative-Finance/dp/0470319585" target="_blank">Paul Wilmott Introduces Quantitative Finance</a>
+            <div class="author">Paul Wilmott</div>
+            <div class="desc">Intuitive and visual. Good at explaining the "why" behind the math. Two-volume set goes very deep.</div>
+        </li>
+        <li>
+            <a class="title" href="https://www.amazon.com/Stochastic-Calculus-Finance-Binomial-Springer/dp/0387249680" target="_blank">Stochastic Calculus for Finance (Volumes I & II)</a>
+            <div class="author">Steven Shreve</div>
+            <div class="desc">The rigorous treatment. Volume I covers discrete time (like our example). Volume II covers continuous time (Black-Scholes). For when you want the full mathematical machinery.</div>
+        </li>
+        <li>
+            <a class="title" href="https://www.amazon.com/Volatility-Surface-Practitioners-Guide/dp/0471792519" target="_blank">The Volatility Surface</a>
+            <div class="author">Jim Gatheral</div>
+            <div class="desc">Advanced. What happens when Black-Scholes assumptions break down. Stochastic vol, local vol, the smile. Read after Shreve.</div>
+        </li>
+    </ul>
+
+    <hr>
+
+    <p style="color: var(--muted); text-align: center; margin-top: 2rem;">
+        Built as part of the Digital Strike Shift project.<br>
+        The simplest example that captures the deepest idea in derivatives pricing.
+    </p>
+</body>
+</html>
