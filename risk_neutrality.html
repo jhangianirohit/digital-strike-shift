@@ -481,6 +481,78 @@ Leverage = $66.67 / $9.52 = <strong>7× levered</strong> on the stock
         <p style="margin-top: 0.75rem;">Q is easier because we don't need to figure out the "right" risk premium for each derivative — it varies with leverage, moneyness, and time to expiry. Q handles all of that automatically.</p>
     </div>
 
+    <h3>The Leverage-Risk Premium Relationship</h3>
+
+    <p>The 26% required return isn't arbitrary — it's <strong>exactly</strong> linked to the stock's 8% return through leverage.</p>
+
+    <p>Define <strong>Omega (Ω)</strong> — the option's elasticity or leverage ratio:</p>
+
+    <div class="formula">
+        Ω = (Δ × S) / C = (0.667 × $100) / $9.52 = <strong>7.0</strong>
+    </div>
+
+    <p>The option's risk premium equals the stock's risk premium scaled by omega:</p>
+
+    <div class="example-box">
+(r_call - r_f) = Ω × (r_stock - r_f)
+
+Stock risk premium  = 8% - 5% = 3%
+Call risk premium   = 7.0 × 3% = 21%
+Call required return = 5% + 21% = <strong>26%</strong> ✓
+    </div>
+
+    <p>The relationship is exact. <span class="highlight">Risk premium scales linearly with leverage.</span></p>
+
+    <h3>Implications for Different Options</h3>
+
+    <table>
+        <tr>
+            <th>Option Type</th>
+            <th>Omega (Ω)</th>
+            <th>Risk Premium</th>
+            <th>Intuition</th>
+        </tr>
+        <tr>
+            <td>Deep ITM call</td>
+            <td>≈ 1</td>
+            <td>≈ Stock</td>
+            <td>Behaves like stock</td>
+        </tr>
+        <tr>
+            <td>ATM call</td>
+            <td>≈ 2-4</td>
+            <td>2-4× stock</td>
+            <td>Moderate leverage</td>
+        </tr>
+        <tr>
+            <td>OTM call</td>
+            <td>≈ 5-20+</td>
+            <td>5-20× stock</td>
+            <td>Highly leveraged</td>
+        </tr>
+    </table>
+
+    <p>This is why OTM options have extreme expected returns — they're extremely leveraged. But they also have extreme risk of total loss.</p>
+
+    <h3>Connection to CAPM</h3>
+
+    <p>If the stock has beta β to the market, the option's beta is:</p>
+
+    <div class="formula">
+        β_call = Ω × β_stock
+    </div>
+
+    <p>The option <strong>inherits</strong> the stock's systematic risk, amplified by leverage. A call on a β=1 stock with Ω=7 has β=7 to the market.</p>
+
+    <div class="card info">
+        <h3>The Beautiful Result</h3>
+        <p>The option's Sharpe ratio equals the stock's Sharpe ratio:</p>
+        <div class="formula" style="margin: 0.75rem 0;">
+            (r_call - r_f) / σ_call = (r_stock - r_f) / σ_stock
+        </div>
+        <p>Higher return, but proportionally higher risk. Leverage doesn't create alpha — it just amplifies exposure.</p>
+    </div>
+
     <!-- ============ SECTION 9: SUMMARY ============ -->
     <h2>9. The Two Measures: Summary</h2>
 
