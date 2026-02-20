@@ -26,7 +26,7 @@ def main():
     The tool compares the cost of shifting now vs waiting, using a risk-adjusted
     certainty equivalent framework.
 
-    📚 **Learn the theory:** [Understanding Risk-Neutral Pricing](risk_neutrality.html)
+    📚 **Learn the theory:** [Understanding Risk-Neutral Pricing](https://jhangianirohit.github.io/digital-strike-shift/risk_neutrality.html)
     """)
 
     # Sidebar inputs
